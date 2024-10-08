@@ -2542,10 +2542,17 @@ image.</p><p>See Also: -applicationIconImage</p>
                     }
                   [_hidden addObject: win];
                   [win orderOut: self];
+		  /*
+		   * On hiding we also deactivate the application which will
+		   * make the menus go away too.
+		   */
+		  [self deactivate];
+		  _unhide_on_activation = YES;
                 }
             }
+	  [[_main_menu itemWithTitle: @"Hide"] setTitle: @"Unhide"];
 	  _app_is_hidden = YES;
-	  
+
 	  if (YES == [[NSUserDefaults standardUserDefaults]
 		       boolForKey: @"GSSuppressAppIcon"])
 	    {
@@ -2566,13 +2573,6 @@ image.</p><p>See Also: -applicationIconImage</p>
 	      [[_app_icon_window contentView] setNeedsDisplay: YES];
 	    }
 	  
-	  /*
-	   * On hiding we also deactivate the application which will make the menus
-	   * go away too.
-	   */
-	  [self deactivate];
-	  _unhide_on_activation = YES;
-	  
 	  info = [self _notificationUserInfo];
 	  [nc postNotificationName: NSApplicationDidHideNotification
 			    object: self
@@ -2590,6 +2590,10 @@ image.</p><p>See Also: -applicationIconImage</p>
 	  [self miniaturizeAll: sender];
 	}
     }
+  else
+    {
+      [self unhide: sender];
+    }
 #endif
 }
 
@@ -2606,6 +2610,7 @@ image.</p><p>See Also: -applicationIconImage</p>
  */
 - (void) unhide: (id)sender
 {
+  [[_main_menu itemWithTitle: @"Unhide"] setTitle: @"Hide"];
   if (_app_is_hidden)
     {
       [self unhideWithoutActivation];
